@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">MyWeatherApp</string>
+    <string name="preference_file_key">com.shah.myweatherapp.PREFERENCE_FILE_KEY</string>
+    <string name="saved_search_key">saved_search</string>
+    <string name="saved_search_default">No search query</string>
+</resources>
