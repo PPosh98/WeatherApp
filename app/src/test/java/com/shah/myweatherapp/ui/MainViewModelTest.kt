@@ -1,6 +1,7 @@
 package com.shah.myweatherapp.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.shah.myweatherapp.model.weather.CoordModel
 import com.shah.myweatherapp.model.weather.MainModel
 import com.shah.myweatherapp.model.weather.WeatherModel
 import com.shah.myweatherapp.repository.Repository
@@ -50,11 +51,11 @@ class MainViewModelTest {
     fun `getWeather should emit success when repository returns data`() = runTest {
         // Given
         val cityName = "london"
-        val data = WeatherModel(7, MainModel(5.5), "London", listOf())
-        coEvery { repository.getWeather(cityName) } returns flowOf(Resource.Success(data))
+        val data = WeatherModel(7, MainModel(5.5), CoordModel(6.2, 6.9), "London", listOf())
+        coEvery { repository.getWeatherByCity(cityName) } returns flowOf(Resource.Success(data))
 
         // When
-        viewModel.getWeather(cityName)
+        viewModel.getWeatherByCity(cityName)
 
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -68,10 +69,10 @@ class MainViewModelTest {
         // Given
         val cityName = "london"
         val exception = Exception("Network error")
-        coEvery { repository.getWeather(cityName) } returns flowOf(Resource.Error(exception.message.toString()))
+        coEvery { repository.getWeatherByCity(cityName) } returns flowOf(Resource.Error(exception.message.toString()))
 
         // When
-        viewModel.getWeather(cityName)
+        viewModel.getWeatherByCity(cityName)
 
         testDispatcher.scheduler.advanceUntilIdle()
 

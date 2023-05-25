@@ -2,6 +2,7 @@ package com.shah.myweatherapp.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.shah.myweatherapp.api.FetchAPI
+import com.shah.myweatherapp.model.weather.CoordModel
 import com.shah.myweatherapp.model.weather.MainModel
 import com.shah.myweatherapp.model.weather.WeatherModel
 import com.shah.myweatherapp.model.weather.WeatherModelX
@@ -46,12 +47,12 @@ class RepositoryImplTest {
     fun `getWeather returns local data if available`() = runTest {
         // Given
         val cityName = "london"
-        val weatherModel = WeatherModel(7, MainModel(5.5), "London", listOf(WeatherModelX("hot", "icon", 2, "very hot")))
+        val weatherModel = WeatherModel(7, MainModel(5.5), CoordModel(6.2, 6.9), "London", listOf(WeatherModelX("hot", "icon", 2, "very hot")))
         val weatherEntity = WeatherEntity(weatherModel, cityName)
-        coEvery { weatherDAO.readWeather(cityName, longitude) } returns weatherEntity
+        coEvery { weatherDAO.readWeatherByCity(cityName) } returns weatherEntity
 
         // When
-        val result = repository.getWeather(cityName)
+        val result = repository.getWeatherByCity(cityName)
 
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -63,20 +64,20 @@ class RepositoryImplTest {
                 else -> fail("Unexpected resource type")
             }
         }
-        coVerify(exactly = 0) { fetchAPI.getWeather(any()) }
+        coVerify(exactly = 0) { fetchAPI.getWeatherByCity(any()) }
     }
 
     @Test
     fun `getWeather returns remote data if local data is not available`() = runTest {
         // Given
         val cityName = "london"
-        val weatherModel = WeatherModel(7, MainModel(5.5), "London", listOf(WeatherModelX("hot", "icon", 2, "very hot")))
+        val weatherModel = WeatherModel(7, MainModel(5.5), CoordModel(6.2, 6.9), "London", listOf(WeatherModelX("hot", "icon", 2, "very hot")))
         val weatherEntity = WeatherEntity(weatherModel, cityName)
-        coEvery { weatherDAO.readWeather(cityName, longitude) } returns null
-        coEvery { fetchAPI.getWeather(cityName) } returns Response.success(weatherModel)
+        coEvery { weatherDAO.readWeatherByCity(cityName) } returns null
+        coEvery { fetchAPI.getWeatherByCity(cityName) } returns Response.success(weatherModel)
 
         // When
-        val result = repository.getWeather(cityName)
+        val result = repository.getWeatherByCity(cityName)
 
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -89,7 +90,7 @@ class RepositoryImplTest {
             }
         }
 
-        coVerify { fetchAPI.getWeather(cityName) }
+        coVerify { fetchAPI.getWeatherByCity(cityName) }
         coVerify { weatherDAO.insertWeather(weatherEntity) }
     }
 
@@ -97,11 +98,11 @@ class RepositoryImplTest {
     fun `getWeather returns error if remote data is not successful`() = runTest {
         // Given
         val cityName = "Berlin"
-        coEvery { weatherDAO.readWeather(cityName, longitude) } returns null
-        coEvery { fetchAPI.getWeather(cityName) } returns Response.error(404, "Not found".toResponseBody("text/plain".toMediaTypeOrNull()))
+        coEvery { weatherDAO.readWeatherByCity(cityName) } returns null
+        coEvery { fetchAPI.getWeatherByCity(cityName) } returns Response.error(404, "Not found".toResponseBody("text/plain".toMediaTypeOrNull()))
 
         // When
-        val result = repository.getWeather(cityName)
+        val result = repository.getWeatherByCity(cityName)
 
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -119,11 +120,11 @@ class RepositoryImplTest {
     fun `getWeather returns error if remote data throws exception`() = runTest {
         // Given
         val cityName = "Tokyo"
-        coEvery { weatherDAO.readWeather(cityName, longitude) } returns null
-        coEvery { fetchAPI.getWeather(cityName) } throws IOException("Network error")
+        coEvery { weatherDAO.readWeatherByCity(cityName) } returns null
+        coEvery { fetchAPI.getWeatherByCity(cityName) } throws IOException("Network error")
 
         // When
-        val result = repository.getWeather(cityName)
+        val result = repository.getWeatherByCity(cityName)
 
         testDispatcher.scheduler.advanceUntilIdle()
 

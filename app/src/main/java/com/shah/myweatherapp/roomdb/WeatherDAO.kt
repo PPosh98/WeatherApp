@@ -11,8 +11,8 @@ interface WeatherDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeather(weatherEntity: WeatherEntity)
 
-    @Query("SELECT * FROM weather WHERE :latitude LIKE latitude AND :longitude LIKE longitude OR " +
-            "latitude LIKE :latitude AND longitude LIKE :longitude")
+    @Query("SELECT * FROM weather WHERE :latitude = latitude AND :longitude = longitude OR " +
+            "latitude = :latitude AND longitude = :longitude")
     suspend fun readWeatherByCoord(latitude: Double?, longitude: Double?) : WeatherEntity?
 
     @Query("SELECT * FROM weather WHERE :query LIKE '%' || query || '%' OR query LIKE '%' || :query || '%'")
